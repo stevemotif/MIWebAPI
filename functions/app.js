@@ -1,6 +1,6 @@
 //app.js
 
-const Product = require('./models/ProductModel');
+const Product = require('../models/ProductModel');
 const Job = require('../models/JobModel');
 const express = require("express");
 const serverless = require("serverless-http");
