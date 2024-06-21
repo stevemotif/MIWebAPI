@@ -18,7 +18,7 @@ const mongoose = require('mongoose')
 
 app.use(express.json())
 
-app.get('/', (req, res) => {
+router.get('/', (req, res) => {
     res.send('Hello node api is running')
 })
 
@@ -99,7 +99,7 @@ app.delete('/product/:id', async (req, res) => {
 })
 
 
-app.post('/addjob', async (req,res) => {
+router.post('/addjob', async (req,res) => {
     try {
         const job = await Job.create(req.body)
         res.status(200).json(job)
