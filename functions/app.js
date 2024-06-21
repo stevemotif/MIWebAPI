@@ -1,5 +1,3 @@
-//app.js
-
 const Product = require("../models/ProductModel");
 const Job = require("../models/JobModel");
 const express = require("express");
@@ -8,92 +6,14 @@ const app = express();
 const router = express.Router();
 const mongoose = require("mongoose");
 
-/* router.get("/", (req, res) => {
-    res.send("App is running..");
-});
- */
+//app.use(express.json());
 
-//routes
-
-app.use(express.json());
-
-app.get("/", (req, res) => {
+router.get("/", (req, res) => {
   res.send("Hello node api is running");
 });
 
-//post a request
-
-app.post("/product", async (req, res) => {
-  try {
-    const product = await Product.create(req.body);
-    res.status(200).json(product);
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// get all request
-
-app.get("/product", async (req, res) => {
-  try {
-    const products = await Product.find({});
-    res.status(200).json(products);
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// get request with id
-
-app.get("/product/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const products = await Product.findById(id);
-    res.status(200).json(products);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// update a request
-
-app.put("/product/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const products = await Product.findByIdAndUpdate(id, req.body);
-    if (!products) {
-      res
-        .status(404)
-        .json({ message: `cannot find any product with id ${id}` });
-    }
-    const updatedpdt = await Product.findById(id);
-    res.status(200).json(updatedpdt);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// delete a request
-
-app.delete("/product/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const products = await Product.findByIdAndDelete(id);
-    if (!products) {
-      res
-        .status(404)
-        .json({ message: `cannot find any product with id ${id}` });
-    }
-
-    res.status(200).json(products);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-app.post("/addjob", async (req, res) => {
+// Post a job request
+router.post("/addjob", async (req, res) => {
   try {
     const job = await Job.create(req.body);
     res.status(200).json(job);
@@ -103,14 +23,17 @@ app.post("/addjob", async (req, res) => {
   }
 });
 
-// get request with id
-
-app.get("/job/:id", async (req, res) => {
+// Get job by id
+router.get("/job/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const products = await Job.findById(id);
-    res.status(200).json(products);
+    const job = await Job.findById(id);
+    if (!job) {
+      return res.status(404).json({ message: "Job not found" });
+    }
+    res.status(200).json(job);
   } catch (error) {
+    console.log(error.message);
     res.status(500).json({ message: error.message });
   }
 });
@@ -120,15 +43,23 @@ mongoose
     "mongodb+srv://stevemotif:JEWle0f9UDrbXxzc@webapi.opv3m57.mongodb.net/?retryWrites=true&w=majority&appName=webapi"
   )
   .then(() => {
-    console.log("connected hihi");
-
-    app.listen(3005, () => {
-      console.log(`Node API app is running on 3005 hihihih`);
-    });
+    console.log("connected to MongoDB");
+   // console.log(process.env.NODE_ENV);
+    
+    // Only start the server if not running in serverless environment
+    if (process.env.NODE_ENV !== "production") {
+      app.listen(3005, () => {
+        console.log(`Node API app is running on port 3005`);
+      });
+    }
   })
   .catch((error) => {
-    console.log(error);
+    console.log("Error connecting to MongoDB:", error.message);
   });
 
+  app.use("/", router);
+
+
 app.use("/.netlify/functions/app", router);
+
 module.exports.handler = serverless(app);
