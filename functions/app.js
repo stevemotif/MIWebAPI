@@ -8,58 +8,125 @@ const mongoose = require("mongoose");
 
 //app.use(express.json());
 
-router.get("/", (req, res) => {
-  res.send("Hello node api is running");
-});
 
-// Post a job request
-router.post("/addjob", async (req, res) => {
-  try {
-    const job = await Job.create(req.body);
-    res.status(200).json(job);
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ message: error.message });
-  }
-});
+app.use(express.json())
 
-// Get job by id
-router.get("/job/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const job = await Job.findById(id);
-    if (!job) {
-      return res.status(404).json({ message: "Job not found" });
+app.get('', (req, res) => {
+    res.send('Hello node api')
+})
+
+
+//post a request
+
+app.post('/product', async (req,res) => {
+    try {
+        const product = await Product.create(req.body)
+        res.status(200).json(product)
+
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({message: error.message})
     }
-    res.status(200).json(job);
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ message: error.message });
-  }
-});
+})
 
-mongoose
-  .connect(
-    "mongodb+srv://stevemotif:JEWle0f9UDrbXxzc@webapi.opv3m57.mongodb.net/?retryWrites=true&w=majority&appName=webapi"
-  )
-  .then(() => {
-    console.log("connected to MongoDB");
-   // console.log(process.env.NODE_ENV);
-    
-    // Only start the server if not running in serverless environment
-    if (process.env.NODE_ENV !== "production") {
-      app.listen(3005, () => {
-        console.log(`Node API app is running on port 3005`);
-      });
+// get all request
+
+app.get('/product', async ( req,res) => {
+    try {
+        const products =  await Product.find({});
+        res.status(200).json(products)
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({message: error.message})
     }
-  })
-  .catch((error) => {
-    console.log("Error connecting to MongoDB:", error.message);
-  });
+})
 
-  app.use("/", router);
+// get request with id
+
+app.get('/product/:id', async ( req,res) => {
+    try {
+        const {id} = req.params;
+        const products =  await Product.findById(id);
+        res.status(200).json(products)
+    } catch (error) {
+        res.status(500).json({message: error.message})
+    }
+})
+
+// update a request
+
+app.put('/product/:id', async (req,res) => {
+    try {
+        const {id} = req.params;
+        const products =  await Product.findByIdAndUpdate(id, req.body)
+        if(!products)
+        {
+            res.status(404).json({message: `cannot find any product with id ${id}`})
+        }
+        const updatedpdt = await Product.findById(id)
+        res.status(200).json(updatedpdt)
+    } catch (error) {
+        res.status(500).json({message: error.message})
+    }
+})
 
 
-app.use("/.netlify/functions/app", router);
+// delete a request
 
-module.exports.handler = serverless(app);
+app.delete('/product/:id', async (req, res) => {
+    try {
+        const {id} = req.params;
+        const products = await Product.findByIdAndDelete(id)
+        if(!products)
+        {
+            res.status(404).json({message: `cannot find any product with id ${id}`})
+
+        }
+        
+        res.status(200).json(products)
+
+    } catch (error) {
+        res.status(500).json({message: error.message})
+
+    }
+})
+
+
+app.post('/addjob', async (req,res) => {
+    try {
+        const job = await Job.create(req.body)
+        res.status(200).json(job)
+
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({message: error.message})
+    }
+})
+
+
+// get request with id
+
+app.get('/job/:id', async ( req,res) => {
+    try {
+        const {id} = req.params;
+        const products =  await Job.findById(id);
+        res.status(200).json(products)
+    } catch (error) {
+        res.status(500).json({message: error.message})
+    }
+})
+
+
+mongoose.connect('mongodb+srv://stevemotif:JEWle0f9UDrbXxzc@webapi.opv3m57.mongodb.net/?retryWrites=true&w=majority&appName=webapi')
+.then(() => {
+
+console.log('connected')
+
+app.listen(3005, ()=> {
+    console.log(`Node API app is running on 3005`)
+})
+
+
+}).catch((error) => {
+    console.log(error)
+})
