@@ -12,7 +12,7 @@ app.use(express.json())
 
 app.get("/", (req, res) => {
     res.send(
-      "<div style='display:flex; justify-content:center;align-items:center;height:100vh;font-size:30px;color: steelblue; font-weight:bold; ' >Miracle Backend</div>"
+      "<div style='display:flex; justify-content:center;align-items:center;height:100vh;font-size:30px;color: steelblue; font-weight:bold; ' >Miracle Backend 1.0</div>"
     );
   });
 
