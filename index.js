@@ -3,6 +3,8 @@ const app = express()
 const mongoose = require('mongoose')
 const Product = require('./models/ProductModel');
 const Job = require('./models/JobModel');
+const req = require('express/lib/request');
+const res = require('express/lib/response');
 const router = express.Router();
 
 //routes
@@ -98,6 +100,8 @@ app.delete('/product/:id', async (req, res) => {
     }
 })
 
+// Add a job
+
 
 app.post('/addjob', async (req,res) => {
     try {
@@ -111,7 +115,21 @@ app.post('/addjob', async (req,res) => {
 })
 
 
-// get request with id
+
+// get all jobs
+
+app.get('/job', async (req, res) => {
+    try {
+        const joblisting = await Job.find({});
+        res.status(200).json(joblisting);
+    } catch (error) {
+        res.status(500).json({message : error.message})
+    }
+    
+    })
+
+    
+// get a single job
 
 app.get('/job/:id', async ( req,res) => {
     try {
@@ -121,6 +139,45 @@ app.get('/job/:id', async ( req,res) => {
     } catch (error) {
         res.status(500).json({message: error.message})
     }
+})
+
+
+//Update a job
+
+app.put('/updatejob/:id', async (req, res) => {
+    try {
+        const {id} =  req.params;
+        const findjob = await Job.findByIdAndUpdate(id, req.body);
+        if(!findjob)
+        {
+          res.status(404).json({message: `Cannot find the product id ${id}`})
+        }
+
+        const updatejob =  await Job.findById(id);
+        res.status(200).json(updatejob);
+
+    } catch (error) {
+        res.status(400).json({message: error.message})
+    }
+})
+
+// Delete a job
+
+app.delete('/deletejob/:id', async (req, res) => {
+
+    try {
+        const {id} =  req.params;
+        const findjob = await Job.findByIdAndDelete(id, req.body);
+
+        if(!findjob){
+            res.status(404).json({message: `Cannot find the product id ${id}`})
+        }
+
+        res.status(200).json(findjob)
+    } catch (error) {
+        res.status(400).json({message: error.message})
+    }
+
 })
 
 
