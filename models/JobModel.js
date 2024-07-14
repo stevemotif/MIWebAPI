@@ -12,7 +12,7 @@ const jobschema = mongoose.Schema(
     },
     salary: {
       type: Number,
-      required: [true, "Please enter Salary Range"]
+      required: [false, "Please enter Salary Range"]
     },
     jobdesc: {
       type: String,
@@ -24,7 +24,7 @@ const jobschema = mongoose.Schema(
     },
     jobstatus: {
       type: Boolean,
-      required: true
+      required: false
     }
   },
   {
