@@ -4,11 +4,11 @@ const jobschema = mongoose.Schema(
   {
     job_title: {
       type: String,
-      required: [true, "Please enter a job title"]
+      required: [false, "Please enter a job title"]
     },
     job_type: {
       type: String,
-      required: [true, "Please enter Job Type"]
+      required: [false, "Please enter Job Type"]
     },
     salary: {
       type: Number,
@@ -16,11 +16,11 @@ const jobschema = mongoose.Schema(
     },
     jobdesc: {
       type: String,
-      required: [true, "Please enter Job Description"]
+      required: [false, "Please enter Job Description"]
     },
     jobresp: {
         type: String,
-        required: [true, "Please enter Job Responsibilities"]
+        required: [false, "Please enter Job Responsibilities"]
     },
     jobstatus: {
       type: Boolean,
