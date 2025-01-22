@@ -6,6 +6,8 @@ const Job = require('./models/JobModel');
 const req = require('express/lib/request');
 const res = require('express/lib/response');
 const router = express.Router();
+const PatientList = require("./models/patientlist");
+const crypto = require("crypto");
 
 //routes
 
@@ -200,6 +202,63 @@ app.delete('/deletejob/:id', async (req, res) => {
     }
 
 })
+
+
+// New API code
+
+// Login endpoint
+app.post("/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      const token = crypto.randomBytes(32).toString("hex");
+      const user = await PatientList.findOne({ email });
+  
+      if (!user) {
+        return res.status(400).json("Invalid User");
+      } else if (user.password === password) {
+        await PatientList.updateOne({ email }, { $set: { token, lastlogin: new Date() } });
+        res.status(200).json({ name: user.firstname, email, token });
+      } else {
+        res.status(400).json(`Invalid Password: ${email}`);
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+  
+  // Signup endpoint
+  app.post("/signup", async (req, res) => {
+    try {
+      const { firstname, lastname, email, password, dob } = req.body;
+  
+      const existingPatient = await PatientList.findOne({ email });
+      if (existingPatient) {
+        return res.status(400).json({ message: "Email already registered." });
+      }
+  
+      const patientlistdata = new PatientList({
+        firstname,
+        lastname,
+        email,
+        password,
+        dob,
+        createdAt: new Date(),
+        lastlogin: "",
+        active: false,
+      });
+  
+      await PatientList.create(patientlistdata);
+      res.status(200).json({ message: "User registered successfully!!" });
+    } catch (error) {
+      if (error.code === 11000) {
+        return res.status(400).json({ message: "Email already exists. Please Login" });
+      }
+      console.error("Error in signup:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+  
 
 
 mongoose.connect('mongodb+srv://stevemotif:JEWle0f9UDrbXxzc@webapi.opv3m57.mongodb.net/?retryWrites=true&w=majority&appName=webapi')
