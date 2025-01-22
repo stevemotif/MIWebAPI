@@ -6,12 +6,7 @@ const Job = require('./models/JobModel');
 const req = require('express/lib/request');
 const res = require('express/lib/response');
 const router = express.Router();
-const Contact = require('./models/ContactModel');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const User = require('./models/UserModel');
-const passwordReset = require("./Routes/passwordReset");
-const users = require("./Routes/users");
+
 //routes
 
 
@@ -36,8 +31,6 @@ app.use(function (req, res, next) {
     next();
 });
 
-app.use("/api/users", users);
-app.use("/api/password-reset", passwordReset);
 
 app.get("/", (req, res) => {
     res.send(
@@ -207,70 +200,6 @@ app.delete('/deletejob/:id', async (req, res) => {
     }
 
 })
-
-app.post('/contact',async (req,res) => {
-    try {
-        const contactformdata = await Contact.create(req.body);
-        res.status(200).json(contactformdata);
-    } catch (error) {
-        console.log(error.message)
-        res.status(500).json({message: error.message})
-    }
-})
-
-app.post('/api/register', async (req, res) => {
-
-    try {
-        
-            const ExistingUser =  await User.findOne({email : req.body.email});
-            if(ExistingUser)
-            {
-                  return  res.status(400).json({message : "User Already exists"})
-            }
-
-            const hashpassword =  await bcrypt.hash(req.body.password, 10);
-
-            const newuser = {
-                email : req.body.email,
-                password : hashpassword
-            }
-
-           const usercreate = await User.create(req.body)
-            res.status(201).json({'message' : 'User Registered Successfully'})
-
-    } catch (error) {
-        res.status(500).json({message : error.message})
-    }
-})
-
-app.post('/api/login', async(req, res ) => {
-
-try {
-    
-const user = await User.findOne({email : req.body.email})
-
-if(!user){
-    return res.status(401).json({error : 'user name is Invalid Credentials'});
-}
-
-
-const hashpassword =  await bcrypt.hash(user.password, 10);
-const passwordMatch = await bcrypt.compare(req.body.password, hashpassword);
-
-if(!passwordMatch){
-    return res.status(401).json({error : 'password is wrong Credentials'});
-}
-
-const token = jwt.sign({email : user.email}, 'secret');
-
-res.status(200).json({token});
-
-} catch (error) {
-    res.status(500).json({message : error.message})
-}
-
-})
-
 
 
 mongoose.connect('mongodb+srv://stevemotif:JEWle0f9UDrbXxzc@webapi.opv3m57.mongodb.net/?retryWrites=true&w=majority&appName=webapi')
